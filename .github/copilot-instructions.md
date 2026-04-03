@@ -53,3 +53,13 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 - Design services around a single responsibility
 - Use the `providedIn: 'root'` option for singleton services
 - Use the `inject()` function instead of constructor injection
+
+### External Services and APIs Documentation
+- Document all external services and APIs used in the project, including:
+  - The purpose of the service/API
+  - The endpoints used and their expected inputs/outputs
+  - Any authentication or authorization requirements
+  - Error handling strategies for API failures
+
+## Source
+- https://docs.api.jikan.moe/
