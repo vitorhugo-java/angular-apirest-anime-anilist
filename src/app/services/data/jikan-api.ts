@@ -25,8 +25,8 @@ export class JikanAPI {
     );
   }
 
-  getSeasonalAnime(season: Season = this.currentSeason, page: number = 1): Observable<Pagination<Anime[]>> {
-    return this.http.get<any>(`${this.baseUrl}/seasons/${this.currentYear}/${season}?${page}`).pipe(
+  getSeasonalAnime(season: Season = this.currentSeason, page: number = 1, sfw: boolean = true): Observable<Pagination<Anime[]>> {
+    return this.http.get<any>(`${this.baseUrl}/seasons/${this.currentYear}/${season}`, { params: { page, sfw } }).pipe(
       map((res) => ({
         ...res.pagination,
         animes: res.data,
