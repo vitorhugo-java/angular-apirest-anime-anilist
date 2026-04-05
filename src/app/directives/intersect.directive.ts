@@ -16,6 +16,7 @@ export class IntersectDirective implements AfterViewInit, OnDestroy {
   private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly zone = inject(NgZone);
   private observer?: IntersectionObserver;
+  private isInsideViewport = false;
 
   threshold = input<number | number[]>(0.1);
   rootMargin = input('0px');
@@ -33,9 +34,20 @@ export class IntersectDirective implements AfterViewInit, OnDestroy {
     this.zone.runOutsideAngular(() => {
       this.observer = new IntersectionObserver(
         ([entry]) => {
-          if (!entry?.isIntersecting) {
+          if (!entry) {
             return;
           }
+
+          if (!entry.isIntersecting) {
+            this.isInsideViewport = false;
+            return;
+          }
+
+          if (this.isInsideViewport) {
+            return;
+          }
+
+          this.isInsideViewport = true;
 
           // Volta para a zona apenas na hora de emitir o evento para o template.
           this.zone.run(() => this.intersect.emit(entry));
