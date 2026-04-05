@@ -2,7 +2,7 @@ import { AsyncPipe } from '@angular/common';
 import { Component, signal, inject, OnInit, Signal, ChangeDetectionStrategy } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { JikanAPI, Anime } from './services/data/jikan-api';
-import { BehaviorSubject, exhaustMap, finalize, Observable, scan } from 'rxjs';
+import { BehaviorSubject, exhaustMap, finalize, Observable, scan, tap } from 'rxjs';
 import { IntersectDirective } from './directives/intersect.directive';
 
 @Component({
@@ -16,25 +16,44 @@ export class App implements OnInit {
   private titleService: Title = inject(Title);
   private jikanAPI = inject(JikanAPI);
   private page$ = new BehaviorSubject<number>(1);
+  hasNextPage = signal(true);
   // Junta as paginas carregadas em uma unica lista para o infinite scroll.
   anime$: Observable<Anime[]> = this.page$.pipe(
     exhaustMap((page) => {
       // Ativa loading antes da chamada e desativa ao finalizar (sucesso ou erro).
       this.loading.set(true);
-      return this.jikanAPI.getSeasonalAnime(undefined, page).pipe(finalize(() => this.loading.set(false)));
+      return this.jikanAPI.getSeasonalAnime(undefined, page).pipe(
+        tap((pagination) => this.hasNextPage.set(pagination.has_next_page)),
+        finalize(() => this.loading.set(false)),
+      );
     }),
-    scan((acc, curr) => [...acc, ...curr.animes], [] as Anime[]),
+    // Evita repetir cards caso a API devolva itens duplicados entre paginas.
+    scan((acc, curr) => {
+      const keys = new Set(acc.map((anime) => `${anime.mal_id}-${anime.title.trim().toLowerCase()}`));
+      const next = curr.animes.filter((anime) => {
+        const key = `${anime.mal_id}-${anime.title.trim().toLowerCase()}`;
+        if (keys.has(key)) {
+          return false;
+        }
+        keys.add(key);
+        return true;
+      });
+      return [...acc, ...next];
+    }, [] as Anime[]),
   );
   loading = signal(false);
 
   // Define o titulo da pagina e aciona a primeira busca ao iniciar o componente.
   ngOnInit(): void {
     this.titleService.setTitle(this.title());
-    this.jikanAPI.getSeasonalAnime();
   }
 
   // Solicita a proxima pagina; o fluxo reativo faz o restante.
   loadMore() {
+    if (this.loading() || !this.hasNextPage()) {
+      return;
+    }
+
     this.page$.next(this.page$.value + 1);
   }
 
