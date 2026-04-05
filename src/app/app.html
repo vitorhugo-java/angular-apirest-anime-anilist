@@ -1,11 +1,14 @@
-<main class="bg-amber-100">
-  @if (animes$ | async; as animeList) {
-    @for (anime of animeList; track $index) {
-      <div class="anime-card">
-        <h2>{{ anime.title }}</h2>
-      </div>
+<main class="flex w-screen items-center justify-center">
+  <div class="grid grid-cols-6 gap-4 p-4">
+    @if (animes(); as animePagination) {
+      @for (anime of animePagination.animes; track anime.mal_id) {
+        <div class="p-4 bg-white rounded shadow">
+          <img [src]="anime.images.jpg.image_url" alt="{{ anime.title }}" class="w-full h-auto mb-2 rounded"/>
+          <h2>{{ ellipsis(anime.title, 30) }}</h2>
+        </div>
+      }
+    } @else {
+      <div>Buscando animes no servidor... ⏳</div>
     }
-  } @else {
-    <div>Buscando animes no servidor... ⏳</div>
-  }
+  </div>
 </main>
