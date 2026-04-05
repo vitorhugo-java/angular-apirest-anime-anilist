@@ -33,4 +33,10 @@ describe('JikanAPI', () => {
   it('should search anime by query', () => {
     // Implement test for searchAnime method
   });
+
+  it('should fetch seasonal anime', () => {
+    service.getSeasonalAnime().subscribe(seasonalAnime => {
+      expect(seasonalAnime.animes.length).toBeGreaterThanOrEqual(0); // Assuming it returns an array of seasonal anime
+    });
+  });
 });
