@@ -4,12 +4,13 @@ import { Title } from '@angular/platform-browser';
 import { JikanAPI, Anime } from './services/data/jikan-api';
 import { BehaviorSubject, exhaustMap, finalize, Observable, scan, tap } from 'rxjs';
 import { IntersectDirective } from './directives/intersect.directive';
+import { RouterLink, RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AsyncPipe, IntersectDirective],
+  imports: [AsyncPipe, IntersectDirective, RouterLink, RouterOutlet],
 })
 export class App implements OnInit {
   title: Signal<string> = signal('Seasonal Anime');
