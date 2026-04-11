@@ -4,6 +4,5 @@ import { Component } from '@angular/core';
   selector: 'app-anime',
   imports: [],
   templateUrl: './anime.html',
-  styleUrl: './anime.css',
 })
 export class Anime {}
