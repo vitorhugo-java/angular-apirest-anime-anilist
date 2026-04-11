@@ -1,1 +1,110 @@
-<p>anime works!</p>
+<main class="neon-page min-h-screen">
+	@if (loading()) {
+		<section class="mx-auto flex min-h-screen w-full max-w-345 items-center justify-center px-6 text-on-surface-variant">
+			<p class="neon-label text-secondary">Initializing detail feed...</p>
+		</section>
+	} @else if (errorMessage()) {
+		<section class="mx-auto flex min-h-screen w-full max-w-345 items-center justify-center px-6">
+			<div class="glass-panel max-w-lg p-8">
+				<p class="mb-5 text-base text-on-surface-variant">{{ errorMessage() }}</p>
+				<a class="neon-button" routerLink="/">Return to season list</a>
+			</div>
+		</section>
+	} @else if (anime(); as entry) {
+		<section class="relative min-h-[78vh] overflow-hidden">
+			<div class="absolute inset-0">
+				<img
+					[src]="poster(entry)"
+					[alt]="entry.title"
+					class="h-full w-full object-cover opacity-45"
+				/>
+				<div class="hero-overlay"></div>
+			</div>
+
+			<div class="relative z-10 mx-auto grid max-w-345 gap-10 px-6 pb-20 pt-24 md:px-10 lg:grid-cols-12 lg:px-14">
+				<div class="lg:col-span-8">
+					<div class="mb-6 flex flex-wrap items-center gap-3">
+						<span class="chip chip-primary">Trending Pick</span>
+						<span class="glass-badge"><span class="text-tertiary">★</span>{{ score(entry) }} Rating</span>
+					</div>
+
+					<h1 class="neon-title max-w-3xl text-5xl font-black uppercase leading-[0.92] tracking-[-0.02em] text-on-surface md:text-7xl">
+						{{ entry.title }}
+					</h1>
+
+					<p class="mt-7 max-w-3xl text-left text-base leading-8 text-on-surface-variant md:text-lg">
+						{{ synopsis(entry) }}
+					</p>
+
+					<div class="mt-10 flex flex-wrap gap-3">
+						@for (genre of entry.genres.slice(0, 4); track genre.mal_id) {
+							<span class="chip chip-neutral">{{ genre.name }}</span>
+						}
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<section class="mx-auto grid max-w-345 gap-14 px-6 py-16 md:px-10 lg:grid-cols-12 lg:px-14">
+			<aside class="space-y-8 lg:col-span-4">
+				<div class="flex items-center justify-between">
+					<h2 class="section-title">Lead Cast</h2>
+					  <span class="h-0.5 w-14 bg-tertiary"></span>
+				</div>
+
+				<div class="space-y-3 rounded-xl bg-surface-container-low p-3">
+					@for (role of leadRoles(); track role.name + role.role) {
+						<article class="group rounded-lg bg-surface-container p-4 transition duration-300 ease-out hover:scale-[1.02] hover:bg-surface-container-high">
+							<h3 class="text-lg font-bold uppercase tracking-[-0.02em] text-on-surface group-hover:text-secondary">{{ role.name }}</h3>
+							<p class="neon-label mt-1 text-outline">{{ role.role }}</p>
+							<p class="mt-2 text-sm text-on-surface-variant">{{ role.meta }}</p>
+						</article>
+					}
+				</div>
+			</aside>
+
+			<div class="space-y-8 lg:col-span-8">
+				<div class="flex items-end justify-between">
+					<div>
+						<h2 class="section-title">Episodes</h2>
+						<p class="neon-label mt-1 text-on-surface-variant">{{ entry.episodes || 0 }} total</p>
+					</div>
+					<a class="neon-label text-secondary" [href]="entry.url" rel="noreferrer" target="_blank">View source</a>
+				</div>
+
+				<div class="grid gap-5 md:grid-cols-2">
+					@for (episode of episodesPreview(); track episode.number) {
+						<article class="group overflow-hidden rounded-xl bg-surface-container transition duration-300 ease-out hover:scale-[1.02] hover:bg-surface-container-high">
+							  <div class="aspect-video overflow-hidden">
+								<img [src]="poster(entry)" [alt]="entry.title + ' episode preview ' + episode.number" class="h-full w-full object-cover opacity-70 transition duration-500 group-hover:scale-105" />
+							</div>
+							<div class="space-y-2 p-4">
+								<p class="neon-label text-secondary">EP {{ episode.number }}</p>
+								<h3 class="text-xl font-bold uppercase tracking-[-0.02em] text-on-surface">{{ episode.title }}</h3>
+								<p class="text-xs uppercase tracking-[0.05em] text-on-surface-variant">{{ episode.descriptor }}</p>
+							</div>
+						</article>
+					}
+				</div>
+			</div>
+		</section>
+
+		<section class="mx-auto max-w-345 px-6 pb-20 md:px-10 lg:px-14">
+			<h2 class="section-title mb-10">Similar</h2>
+			<div class="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
+				@for (item of related(); track item.mal_id) {
+					<a class="group block" [routerLink]="['/anime', item.mal_id]" [attr.aria-label]="'Open details for ' + item.title">
+						<div class="relative aspect-3/4 overflow-hidden rounded-lg bg-surface-container">
+							<img [src]="poster(item)" [alt]="item.title" class="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+							<div class="neon-vignette opacity-70"></div>
+						</div>
+						<h3 class="mt-3 text-sm font-bold uppercase tracking-[-0.02em] text-on-surface transition-colors group-hover:text-primary">
+							{{ item.title }}
+						</h3>
+						<p class="neon-label mt-1 text-outline">{{ item.type || 'Series' }}</p>
+					</a>
+				}
+			</div>
+		</section>
+	}
+</main>
