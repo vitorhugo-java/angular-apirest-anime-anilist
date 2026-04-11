@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
-import { Anime } from './pages/anime/anime';
 
 export const routes: Routes = [
-  { path: '/pages/anime/:id', component: Anime },
+  { path: 'anime/:id', loadComponent: () => import('./anime/anime').then((m) => m.Anime) },
+  { path: '', loadComponent: () => import('./home/home').then((m) => m.Home) },
 ];
