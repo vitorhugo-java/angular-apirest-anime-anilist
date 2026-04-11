@@ -1,0 +1,43 @@
+name: Seasonal SEO Files
+
+on:
+  schedule:
+    # Runs at 03:00 UTC on Jan 1, Apr 1, Jul 1, Oct 1
+    - cron: '0 3 1 1,4,7,10 *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  generate-seo:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate sitemap.xml and robots.txt
+        env:
+          SITE_URL: https://animeseason.hugojava.dev
+        run: npm run seo:generate
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/sitemap.xml public/robots.txt
+          git diff --cached --quiet && echo "No SEO changes to commit" && exit 0
+          git commit -m "chore(seo): refresh seasonal sitemap and robots"
+
+      - name: Push changes
+        run: git push
