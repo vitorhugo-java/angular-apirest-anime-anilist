@@ -20,8 +20,8 @@ describe('JikanAPI', () => {
 
   // Additional tests for API methods can be added here, using HttpClientTestingModule to mock HTTP requests
   it('should fetch recommendations', () => {
-    // Implement test for getRecommendations method
-    service.getRecommendations().subscribe(recommendations => {
+    // Implement test for getAnimeRecommendations method
+    service.getAnimeRecommendations(1).subscribe(recommendations => {
       expect(recommendations.length).toBeGreaterThanOrEqual(0); // Assuming it returns an array of recommendations
     });
   });
