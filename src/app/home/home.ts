@@ -1,10 +1,18 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, signal, inject, OnInit, Signal, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  signal,
+  inject,
+  OnInit,
+  Signal,
+  WritableSignal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { JikanAPI, Anime } from '../services/data/jikan-api';
 import { BehaviorSubject, exhaustMap, finalize, Observable, scan, tap } from 'rxjs';
 import { IntersectDirective } from '../directives/intersect.directive';
-import { RouterLink, RouterOutlet } from '@angular/router';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-home',
@@ -14,6 +22,7 @@ import { RouterLink, RouterOutlet } from '@angular/router';
 })
 export class Home implements OnInit {
   title: Signal<string> = signal('Seasonal Anime');
+  currentSeasonLabel: WritableSignal<string> = signal('Current Season');
   private titleService: Title = inject(Title);
   private jikanAPI = inject(JikanAPI);
   private page$ = new BehaviorSubject<number>(1);
@@ -49,6 +58,7 @@ export class Home implements OnInit {
   // Define o titulo da pagina e aciona a primeira busca ao iniciar o componente.
   ngOnInit(): void {
     this.titleService.setTitle(this.title());
+    this.currentSeasonLabel.set(this.jikanAPI.getSeasonLabel());
   }
 
   // Solicita a proxima pagina; o fluxo reativo faz o restante.
@@ -66,5 +76,17 @@ export class Home implements OnInit {
       return value;
     }
     return value.substring(0, limit) + '...';
+  }
+
+  cardImage(anime: Anime): string {
+    return anime.images.webp.large_image_url || anime.images.jpg.large_image_url || anime.images.jpg.image_url;
+  }
+
+  score(anime: Anime): string {
+    return anime.score ? anime.score.toFixed(1) : 'N/A';
+  }
+
+  genre(anime: Anime, index: number): string {
+    return anime.genres[index]?.name || (index === 0 ? 'Anime' : 'Series');
   }
 }

@@ -1,24 +1,67 @@
-<main class="flex w-screen items-center justify-center">
-  <div class="grid grid-cols-6 gap-4 p-4">
-    @if (anime$ | async; as animePagination) {
-      @for (anime of animePagination; track anime.mal_id) {
-        <div class="p-4 bg-white rounded shadow" [routerLink]="['/anime', anime.mal_id]" >
-          <img
-            [src]="anime.images.jpg.image_url"
-            alt="{{ anime.title }}"
-            class="w-full h-auto mb-2 rounded"
-          />
-          <h2>{{ ellipsis(anime.title, 30) }}</h2>
-        </div>
-      }
+<main class="neon-page min-h-screen px-6 py-14 md:px-10 lg:px-14">
+  <section class="mx-auto max-w-345">
+    <div class="mb-12 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+      <div>
+        <p class="neon-label mb-2 text-secondary">Season Protocol</p>
+        <h1 class="neon-title max-w-2xl text-4xl font-black uppercase tracking-[-0.02em] text-on-surface sm:text-5xl">
+          {{ currentSeasonLabel() }}
+        </h1>
+        <div class="mt-3 h-0.75 w-28 bg-linear-to-r from-secondary to-transparent"></div>
+      </div>
 
-      <div id="anchor" appIntersect (intersect)="loadMore()" class="h-10 w-full">
+      <p class="max-w-md text-left text-sm leading-7 text-on-surface-variant md:text-base">
+        Discover the highest-energy drops of the season. Curated for velocity, style, and pure anime
+        atmosphere.
+      </p>
+    </div>
+
+    @if (anime$ | async; as animePagination) {
+      <div class="grid grid-cols-1 gap-7 md:grid-cols-2 xl:grid-cols-4">
+        @for (anime of animePagination; track anime.mal_id) {
+          <article
+            class="neon-card group cursor-pointer"
+            [routerLink]="['/anime', anime.mal_id]"
+            [attr.aria-label]="'Open details for ' + anime.title"
+          >
+            <div class="relative aspect-3/4 overflow-hidden rounded-lg bg-surface-container-lowest">
+              <img
+                [src]="cardImage(anime)"
+                [alt]="anime.title"
+                class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+              />
+              <div class="neon-vignette"></div>
+              <div class="glass-badge absolute right-3 top-3">
+                <span class="text-tertiary">★</span>
+                <span>{{ score(anime) }}</span>
+              </div>
+            </div>
+
+            <div class="mt-5 space-y-4">
+              <div class="flex flex-wrap gap-2">
+                <span class="chip chip-primary">{{ genre(anime, 0) }}</span>
+                <span class="chip chip-neutral">{{ genre(anime, 1) }}</span>
+              </div>
+
+              <h2 class="text-2xl font-bold uppercase tracking-[-0.02em] text-on-surface transition-colors group-hover:text-secondary">
+                {{ ellipsis(anime.title, 34) }}
+              </h2>
+
+              <div class="flex items-center justify-between text-xs uppercase tracking-[0.05em] text-on-surface-variant">
+                <span>EP {{ anime.episodes || '?' }} / {{ anime.episodes || '?' }}</span>
+                <span class="pulse-dot"></span>
+              </div>
+            </div>
+          </article>
+        }
+      </div>
+
+      <div id="anchor" appIntersect (intersect)="loadMore()" class="mt-12 flex min-h-12 items-center justify-center">
         @if (loading()) {
-          <span>Carregando mais animes... ⏳</span>
+          <span class="neon-label text-secondary">Loading next wave...</span>
         }
       </div>
     } @else {
-      <div>Buscando animes no servidor... ⏳</div>
+      <div class="glass-panel p-8 text-on-surface-variant">Fetching seasonal feed...</div>
     }
-  </div>
+  </section>
 </main>
